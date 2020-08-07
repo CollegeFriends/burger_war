@@ -1,4 +1,4 @@
-#!/root/anaconda3/envs/CollegeFriends/bin/python
+#!/home/yodai/anaconda3/envs/CollegeFriends/bin/python
 
 import math
 
