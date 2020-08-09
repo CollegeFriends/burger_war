@@ -5,7 +5,7 @@ bash scripts/sim_with_judge.sh
 # roslaunch burger_war setup_sim.launch
 
 # 自律走行起動
-bash scripts/start.sh
+bash scripts/start.sh -l 3
 bash scripts/start2.sh 2
 
 python burger_war/scripts/cv_cam2.py

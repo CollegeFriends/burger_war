@@ -37,6 +37,7 @@ class Localization():
     def scan_callback(self, scan):
         # print(scan.ranges[0])
         np_scan = np.array(scan.ranges).astype("float32")
+        np_scan = np.where(np_scan == np.inf, 3.5, np_scan)
         scan_tmp = np.expand_dims(np_scan, -1)
         position_quadrant = 0
 
@@ -49,17 +50,55 @@ class Localization():
         elif self.np_position_pre[0] >= 0 and self.np_position_pre[1] < 0:
             position_quadrant = 4
 
+        # print(position_quadrant)
+
         if position_quadrant == 2:
             scan_tmp = np.concatenate([scan_tmp[0:1], scan_tmp[-1:0:-1]])
         elif position_quadrant == 4:
             scan_tmp = np.concatenate([scan_tmp[0:1], scan_tmp[-1:0:-1]])
 
-        # if not self.is_model_sw:
-        #     self.model = load_model('burger_war/scripts/keras/model.h5')
-        #     # self.model._make_predict_function()
-        #     self.model.summary()
-        #     self.is_model_sw = True
-        self.np_position = self.model.predict(np.expand_dims(scan_tmp, 0))[0]
+        if position_quadrant == 2:
+            scan_tmp = np.concatenate([scan_tmp[0:1], scan_tmp[-1:0:-1]])
+            self.np_position_pre[0] *= -1
+            if self.np_position_pre[2] >= 0:
+                self.np_position_pre[2] = -self.np_position_pre[2] + np.pi
+            else:
+                self.np_position_pre[2] = -self.np_position_pre[2] - np.pi
+        elif position_quadrant == 3:
+            self.np_position_pre[0] *= -1
+            self.np_position_pre[1] *= -1
+            if self.np_position_pre[2] >= 0:
+                self.np_position_pre[2] = self.np_position_pre[2] - np.pi
+            else:
+                self.np_position_pre[2] = self.np_position_pre[2] + np.pi
+        elif position_quadrant == 4:
+            scan_tmp = np.concatenate([scan_tmp[0:1], scan_tmp[-1:0:-1]])
+            self.np_position_pre[1] *= -1
+            self.np_position_pre[2] *= -1
+
+        angle = np.arctan2(self.np_position_pre[0], self.np_position_pre[1])
+        position_tmp = self.model.predict([np.expand_dims(scan_tmp, 0), np.expand_dims(angle, 0)])[0]
+
+        # position_tmp = self.model.predict(np.expand_dims(scan_tmp, 0))[0]
+
+        if position_quadrant == 2:
+            position_tmp[0] *= -1
+            if position_tmp[2] >= 0:
+                position_tmp[2] = -position_tmp[2] + np.pi
+            else:
+                position_tmp[2] = -position_tmp[2] - np.pi
+        elif position_quadrant == 3:
+            position_tmp[0] *= -1
+            position_tmp[1] *= -1
+            if position_tmp[2] >= 0:
+                position_tmp[2] = position_tmp[2] - np.pi
+            else:
+                position_tmp[2] = position_tmp[2] + np.pi
+        elif position_quadrant == 4:
+            position_tmp[1] *= -1
+            position_tmp[2] *= -1
+
+        self.np_position = position_tmp
         print(self.np_position)
         # print("=" * 10)
 

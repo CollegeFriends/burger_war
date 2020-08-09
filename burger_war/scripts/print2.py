@@ -3,6 +3,7 @@
 # python burger_war/scripts/print2.py
 
 import math
+import sys
 
 import numpy as np
 
@@ -19,8 +20,9 @@ class PrintMsg():
         self.tf_rotation_euler = []
 
         self.position_i = []
-        self.position_pre_i = np.array([0.0, -1.3, 1.57]).astype("float32")
+        self.position_pre_i = []
         self.scan_i = []
+        self.start_cnt = 0
 
         if 0:  # 新規
             self.np_scan = np.zeros((0, 360)).astype("float32")
@@ -58,6 +60,12 @@ class PrintMsg():
         # print("translation: [{:.3f}, {:.3f}]".format(self.tf_translation[0], self.tf_translation[1]))
         # print("rotation: {:.3f}".format(self.tf_rotation_euler[2]*180.0 / math.pi))
         # print("=" * 10)
+        if self.start_cnt < 10:
+            self.start_cnt += 1
+            self.position_i = np.array([self.tf_translation[0], self.tf_translation[1], self.tf_rotation_euler[2]]).astype("float32")
+            self.position_pre_i = self.position_i
+            return
+
         self.scan_i = np.array([scan.ranges]).astype("float32")
         self.scan_i = np.where(self.scan_i == np.inf, 3.5, self.scan_i)
 
@@ -68,14 +76,33 @@ class PrintMsg():
         self.np_position = np.vstack([self.np_position, self.position_i])
         self.np_position_pre = np.vstack([self.np_position_pre, self.position_pre_i])
 
-        np.save("burger_war/scripts/keras/data/scan.npy", self.np_scan)
-        np.save("burger_war/scripts/keras/data/position.npy", self.np_position)
-        np.save("burger_war/scripts/keras/data/position_pre.npy", self.np_position_pre)
+        # np.save("burger_war/scripts/keras/data/scan.npy", self.np_scan)
+        # np.save("burger_war/scripts/keras/data/position.npy", self.np_position)
+        # np.save("burger_war/scripts/keras/data/position_pre.npy", self.np_position_pre)
 
         self.position_pre_i = self.position_i
+
+    def loop(self):
+        while not rospy.is_shutdown():
+            key_input = raw_input()
+            if key_input == "q":
+                sys.exit()
+            np_scan_tmp = np.copy(self.np_scan)
+            np_position_tmp = np.copy(self.np_position)
+            np_position_pre_tmp = np.copy(self.np_position_pre)
+            print(len(np_scan_tmp))
+            print(len(np_position_tmp))
+            print(len(np_position_pre_tmp))
+            if len(np_scan_tmp) == len(np_position_tmp) and len(np_scan_tmp) == len(np_position_pre_tmp):
+                np.save("burger_war/scripts/keras/data/scan.npy", np_scan_tmp)
+                np.save("burger_war/scripts/keras/data/position.npy", np_position_tmp)
+                np.save("burger_war/scripts/keras/data/position_pre.npy", np_position_pre_tmp)
+                print("save OK!")
+                sys.exit()
 
 
 if __name__ == "__main__":
     rospy.init_node("print2")
     print_msg = PrintMsg()
-    rospy.spin()
+    print_msg.loop()
+    # rospy.spin()

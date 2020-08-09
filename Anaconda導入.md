@@ -37,4 +37,4 @@ $ . ~/anaconda3/etc/profile.d/conda.sh
 $ conda activate CollegeFriends
 ```
 
-`. ~/anaconda3/etc/profile.d/conda.sh` でcondaコマンドが使える
+`. ~/anaconda3/etc/profile.d/conda.sh` でcondaコマンドが使えるようになる
