@@ -17,6 +17,7 @@ from keras.utils import np_utils, plot_model
 
 import rospy
 from sensor_msgs.msg import LaserScan
+from geometry_msgs.msg import Pose
 
 
 class Localization():
@@ -33,6 +34,9 @@ class Localization():
         self.scan_sub = rospy.Subscriber("/scan", LaserScan, self.scan_callback)
 
         # self.twist_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1000)
+        self.loc_pub = rospy.Publisher('location', Pose,queue_size=1)
+
+        self.strategy()
 
     def scan_callback(self, scan):
         # print(scan.ranges[0])
@@ -60,11 +64,20 @@ class Localization():
         #     self.model.summary()
         #     self.is_model_sw = True
         self.np_position = self.model.predict(np.expand_dims(scan_tmp, 0))[0]
-        print(self.np_position)
+        # print(self.np_position)
         # print("=" * 10)
 
         self.np_position_pre = self.np_position
 
+    def strategy(self):
+        r = rospy.Rate(10) # change speed 1fps
+
+        while not rospy.is_shutdown():
+            pose = Pose()
+            pose.position.x = self.np_position_pre[0]
+            pose.position.y = self.np_position_pre[1]
+            self.loc_pub.publish(pose)
+            r.sleep()
 
 if __name__ == "__main__":
     rospy.init_node("localization")
