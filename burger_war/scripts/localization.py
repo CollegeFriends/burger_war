@@ -109,7 +109,7 @@ class Localization():
         #     # self.model._make_predict_function()
         #     self.model.summary()
         #     self.is_model_sw = True
-        self.np_position = self.model.predict(np.expand_dims(scan_tmp, 0))[0]
+        # self.np_position = self.model.predict(np.expand_dims(scan_tmp, 0))[0]
         # print(self.np_position)
         # print("=" * 10)
 
