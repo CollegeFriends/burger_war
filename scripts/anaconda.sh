@@ -10,8 +10,10 @@ export TURTLEBOT3_MODEL=burger
 
 # rosrun burger_war cv_cam2.py &
 # ~/anaconda3/envs/CollegeFriends/bin/python burger_war/scripts/controlBot.py
+chmod +X ./burger_war/scripts/*.py
 bash scripts/reset.sh
 rosrun burger_war controlBot.py
+# python burger_war/scripts/print3.py
 # & ~/anaconda3/envs/CollegeFriends/bin/python burger_war/scripts/localization.py
 
 
