@@ -12,6 +12,7 @@ import rospy
 import random
 import math
 import numpy as np
+from rosgraph_msgs.msg import Clock
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose,Quaternion
 import tf
@@ -19,6 +20,7 @@ import time
 # import quaternion
 
 version = 0.1
+
 def rad2deg(x):
     return x * 180.0 / math.pi
 
@@ -28,6 +30,9 @@ class ControlBot():
         self.name = bot_name
         # velocity publisher
         self.vel_pub = rospy.Publisher('cmd_vel', Twist,queue_size=1)
+        # clock subscriber
+        self.clk_sub = rospy.Subscriber('/clock',Clock,self.clk_callback)
+        self.clk = 0.0  # current_time
 
         # 目標値 (位置,姿勢)
         x = 0.55*(random.random()-0.5)
@@ -39,8 +44,7 @@ class ControlBot():
         self.initialized = False
 
         # 許容誤差
-        self.threshold = 0.01
-        
+        self.threshold = 0.01        
         self.pre_dist = None    # 直前の距離
         self.reward = 0         # 報酬
         self.isSucceeded = 0    # 状態                
@@ -53,6 +57,7 @@ class ControlBot():
             # 初期状態での目標位置との距離
             self.init_dist = np.linalg.norm(self.goal - self.init)                                    
             self.initialized = True
+            self.base_time = self.clk
         
         if self.isSucceeded == 1:
             return
@@ -118,8 +123,7 @@ class ControlBot():
     def strategy(self):
         r = rospy.Rate(1) # change speed 1fps
         
-        listener = tf.TransformListener()
-        self.base_time = time.time()
+        listener = tf.TransformListener()        
         
         while not rospy.is_shutdown() and self.isSucceeded == 0:
             try:
@@ -171,8 +175,8 @@ class ControlBot():
         if dist < self.threshold and abs(theta) < 10*math.pi/180.0:
             self.isSucceeded = 1
 
-        # 時刻による罰則
-        t = time.time()- self.base_time
+        # 時刻による罰則        
+        t = self.clk - self.base_time
         if t > 10:
             self.isSucceeded = -1        
             rospy.logwarn("time out : 10 s")
@@ -187,6 +191,9 @@ class ControlBot():
         if t > 3 :
             self.reward -= 0.005 * (1.0 - math.exp(-t/3.0))
     
+    def clk_callback(self,clk_msg):        
+        self.clk  = clk_msg.clock.secs + clk_msg.clock.nsecs * 10e-9
+
 if __name__ == '__main__':
     rospy.init_node('control_node')
     
