@@ -6,7 +6,7 @@
       <background>0.7 0.7 0.7 1</background>
     </scene>
     <physics name='ode_100iters' default='0' type='ode'>
-      <real_time_update_rate>1000</real_time_update_rate>
+      <real_time_update_rate>0</real_time_update_rate>
       <max_step_size>0.001</max_step_size>
       <real_time_factor>1</real_time_factor>
     </physics>
@@ -302,10 +302,10 @@
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
     <state world_name='onigiri_field'>
-      <sim_time>126 762000000</sim_time>
-      <real_time>129 297751044</real_time>
-      <wall_time>1596884944 421076528</wall_time>
-      <iterations>126762</iterations>
+      <sim_time>16135 799000000</sim_time>
+      <real_time>115 120089312</real_time>
+      <wall_time>1597041012 543006807</wall_time>
+      <iterations>16009037</iterations>
       <model name='blue_maker'>
         <pose frame=''>0 0 0 0 -0 0</pose>
         <scale>1 1 1</scale>
