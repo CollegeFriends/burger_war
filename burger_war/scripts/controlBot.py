@@ -136,9 +136,6 @@ class ControlBot():
                 # rospy.loginfo(self.reward)
 
             except:
-                # rospy.logwarn("TF 読み取り ERROR")
-                import traceback
-                traceback.print_exc()
                 pass
                         
             r.sleep()
@@ -170,8 +167,7 @@ class ControlBot():
         ref_dir = np.array([math.cos(self.g_th),math.sin(self.g_th)])
         
         # 角度誤差
-        theta = math.atan2(np.cross(cur_dir,ref_dir),np.dot(cur_dir,ref_dir))
-        print(rad2deg(theta))
+        theta = math.atan2(np.cross(cur_dir,ref_dir),np.dot(cur_dir,ref_dir))        
         if dist < self.threshold and abs(theta) < 10*math.pi/180.0:
             self.isSucceeded = 1
 

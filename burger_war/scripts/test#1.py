@@ -6,9 +6,9 @@ import os
 import subprocess
 try:    
     res1 = subprocess.call("chmod +X burger_war/scripts/*.py",shell=True)
-    res2 = subprocess.call("bash scripts/reset.sh",shell=True)
-    print(res1,res2)
-    print("is Success? : ",res1 == res2 == True)
+    res2 = subprocess.call("bash scripts/reset_test.sh",shell=True)
+    # print(res1,res2)
+    # print("is Success? : ",res1 == res2 == True)
 except:
     import traceback
     traceback.print_exc()
