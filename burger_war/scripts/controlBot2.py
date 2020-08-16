@@ -5,8 +5,7 @@
 # Version 0.1 まずは1Hzで直進/後退をランダムにし続ける
 # Version 0.2 TFから現在の位置を取得、目的地に向けてON/OFF制御
 # Version 2.0 目標値のスタック
-# conda install numba
-# conda install -c conda-forge quaternion
+# Version 2.1 移動失敗時に一つ前の目的地に戻り、リトライ可能に
 # '''
 import roslib
 # roslib.load_manifest('learning_tf')
@@ -19,9 +18,8 @@ from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Pose,Quaternion
 from tf2_msgs.msg import TFMessage
 import time
-import queue
 
-version = 2.0
+version = 2.1
 
 def rad2deg(x):
     return x * 180.0 / math.pi
@@ -61,10 +59,10 @@ class ControlBot():
         self.init_dist = None       # 移動開始時の距離
         self.base_time = None       # 移動開始時の時刻
         self.initialized = False    # 初期化済み(移動開始済み)かどうか
-        
+        self.retry = False          # 失敗した時に一つ前の地点に戻り、リトライする
 
         # 目標値
-        self._queue = queue.Queue()  
+        self._queue = []
         self._path  = []
         self.goal = np.zeros(2)
         self.g_th = None
@@ -91,17 +89,18 @@ class ControlBot():
             self.init_dist = np.linalg.norm(self.goal - self.init)  # 移動開始時の距離
             self.base_time = self.clk                               # 移動開始時刻の設定
             self.isSucceeded = 0                                    # 移動完了状態のクリア (0: 移動中 / 1: 移動完了(待機中) / -1: タイムアウト(移動失敗))
-            self.flg = 0                                            # 移動状況のクリア (0: 未達 / 1: 近接位置に来た)
-            self.initialized = True                                 # 初期化修了
-            
+            self.flg = 0                                            # 移動状況のクリア (0: 未達 / 1: 近接位置に来た)            
+            self.e_dist = np.zeros(3)                               # 誤差の初期化
+            self.e_dir = np.zeros(3)                                # 誤差の初期化
+            self.e_dir2 = np.zeros(3)                               # 誤差の初期化
+            self.initialized = True                                 # 初期化完了
             rospy.loginfo("Initialized :[ {} {} {} {} ]".format(self.goal[0],self.goal[1],self.g_th,self.base_time))
             
         if self.isSucceeded != 0 or self.goal is None:            
             # 移動完了or タイムアウト or 目的地がない場合
             twist = Twist()
             twist.linear.x = 0; twist.linear.y = 0; twist.linear.z = 0
-            twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0.0        
-            self.isSucceeded = 1
+            twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = 0.0                    
             return twist        
 
         # 現在の位置と目標位置の距離        
@@ -211,11 +210,12 @@ class ControlBot():
         self.clk = clk_msg.clock.secs + clk_msg.clock.nsecs * 10e-9
 
    
-    def strategy(self,END=False):
+    def strategy(self,RETRY=False,END=False):
         # 制御周期 = 10 Hz
         r = rospy.Rate(10)
         self.trans = None
         self.rot = None        
+        self.retry = RETRY
 
         while not rospy.is_shutdown():
             try:                                   
@@ -234,7 +234,7 @@ class ControlBot():
                 # 制御信号の送信
                 self.vel_pub.publish(twist)   
 
-                if END and self._queue.empty() and self.goal is None:
+                if END and len(self._queue)<1 and self.goal is None:
                     return                  
             except:
                 import traceback
@@ -242,9 +242,12 @@ class ControlBot():
                 self.isSucceeded = -1                                        
             r.sleep()
 
+    # 目的地の更新
     def update_goal(self):
-        if self.isSucceeded != 0:            
-            if self._queue.empty():
+        if self.isSucceeded == 1:    
+            # 正常にゴールに到達した場合
+            if len(self._queue) < 1:
+                self._path.append([self.goal[0],self.goal[1],self.g_th,self.timeout])
                 self.goal = None
                 self.g_th = None
                 self.isSucceeded = 1
@@ -252,28 +255,46 @@ class ControlBot():
                 rospy.loginfo("Update goal : STOP [EMPTY]")
             else:                      
                 self._path.append([self.goal[0],self.goal[1],self.g_th,self.timeout])          
-                tmp = self._queue.get()
+                tmp = self._queue[0]
+                self._queue.pop(0)                
                 self.base_time = self.clk
                 self.isSucceeded = 0
                 self.goal = np.array([tmp[0],tmp[1]])
                 self.g_th = tmp[2]                
                 self.timeout = tmp[3]
-                self.initialized = False             
-                self.e_dist = np.zeros(3)           
-                self.e_dir = np.zeros(3)           
-                self.e_dir2 = np.zeros(3)           
+                self.initialized = False            
                 rospy.loginfo("Update goal : {} {} {} {}".format(tmp[0],tmp[1],tmp[2],tmp[3]))
-        else:
+        elif self.isSucceeded == -1:  
+            print("HEY")          
+            # ゴール到達に失敗した場合
+            if len(self._path) < 1:
+                #どこにも到達できていなかった場合、その場で静止
+                self.stop()
+            else:
+                # RETRYする場合
+                rospy.loginfo("RETRY!")
+                # 現在の目的地を目標リストの先頭に再追加
+                self._queue.insert(0,[self.goal[0],self.goal[1],self.g_th,self.timeout])                
+                #最後に到達した地点を目的地に設定
+                self.isSucceeded = 0                               
+                tmp = self._path[-1]
+                self.goal = np.array([tmp[0],tmp[1]])
+                self.g_th = tmp[2]
+                self.timeout = tmp[3]
+                self.initialized = False
+
+        elif self.isSucceeded == 0:
             if self.clk - self.base_time > self.timeout:
                 rospy.logwarn("Failed [time out] : {} {} {} {}".format(self.goal[0],self.goal[1],self.g_th,self.timeout))                
-                self.isSucceeded = -1
-
-
-            
+                if self.retry:
+                    self.isSucceeded = -1
+                    rospy.loginfo("RETRY!")
+                else:
+                    self.isSucceeded = 1
                             
     # 目的地を追加する
     def put_goal(self,x,y,th,timeout = 25.0):        
-        self._queue.put([x,y,th,timeout])
+        self._queue.append([x,y,th,timeout])
         if timeout is None:
             timeout = "-"
         else:
@@ -285,12 +306,11 @@ class ControlBot():
             th = "{:.03f}".format(th)
         
         rospy.loginfo("put goal : [{:.03f} {:.03f} {} {}]".format(x,y,th,timeout))    
-        
-   
+           
     # 目的地を強制変更する
     def set_goal(self,x,y,th,timeout=20.0):        
         # キューをすべて削除        
-        self._queue = queue.Queue()        
+        self._queue = []
         # 強制的に目指すべき場所を変更する
         self.goal = np.array([x,y])
         self.g_th = th

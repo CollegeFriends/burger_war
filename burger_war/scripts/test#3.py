@@ -8,7 +8,7 @@ import math
 reset_sim(judge=True)
 a = ControlBot()     
 
-pattern = "B"
+pattern = "C"
 try:        
     if pattern == "A":
         a.put_goal(-0.75,-0.75,None)
@@ -19,7 +19,7 @@ try:
         a.put_goal(1.3,0.0,None)
         a.put_goal(0.75,-0.75,None)
         a.put_goal(0.0,-1.3,None)          
-    elif pattern == "B":        
+    elif pattern in ["B","C"]:        
         a.put_goal(0,-1.3,math.pi/2.0)
         a.put_goal(0,-0.5,math.pi/2.0)         # 1                    
         a.put_goal(0,-1.3,math.pi/2.0)
@@ -46,10 +46,17 @@ try:
         a.put_goal(1.3,0.0,None)
         a.put_goal(0.75,-0.75,None)            
         a.put_goal(0.53, -0.83,math.pi/2.0)               # 12       
-        a.put_goal(0,-1.3,math.pi/2.0)
+        a.put_goal(0,-1.3,math.pi/2.0)            
         
     base_time = a.clk
-    a.strategy(END=True)
+    if pattern == "C":
+        tmp = len(a._queue)        
+        a.strategy(RETRY = True,END=True)
+        print("失敗による追加 : {}".format(len(a._path) - tmp))
+    else:        
+        a.strategy(END=True)
+        
+
     t = a.clk
     print("要した時間 : {}".format(t-base_time))
 except: 
