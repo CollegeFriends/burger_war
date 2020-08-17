@@ -20,38 +20,28 @@ target_map = {
     "Pudding_S":        [-0.53,     -0.53-0.15/2.0],
 }
 
-for key in target_map.keys():
-    if key[-1] == "N":
-        target_map[key][1] += 0.3
-    if key[-1] == "S":
-        target_map[key][1] -= 0.3
-    if key[-1] == "E":
-        target_map[key][0] += 0.3
-    if key[-1] == "W":
-        target_map[key][0] -= 0.3
-
 
 
 point_map = {
-"00":  [-0.8,+0.7],
+"00":  [-0.72,+0.77],
 "01":  [-0.2,+0.7],
 "02":  [+0.2,+0.7],
-"03":  [+0.8,+0.7],
+"03":  [+0.72,+0.77],
 
 "10":  [-0.8,+0.25],
-"11":  [-0.3,+0.3],
-"12":  [+0.3,+0.3],
+"11":  [-0.3,+0.25],
+"12":  [+0.3,+0.25],
 "13":  [+0.8,+0.25],
 
 "20":  [-0.8,-0.25],
-"21":  [-0.3,-0.3],
-"22":  [+0.3,-0.3],
+"21":  [-0.3,-0.25],
+"22":  [+0.3,-0.25],
 "23":  [+0.8,-0.25],
 
-"30":  [-0.8,-0.7],
+"30":  [-0.72,-0.77],
 "31":  [-0.2,-0.7],
 "32":  [+0.2,-0.7],
-"33":  [+0.8,-0.7]}
+"33":  [+0.72,-0.77]}
 
 
 def getPoint(r,c):
@@ -93,13 +83,18 @@ def converter(war_state):
 def getTargetPose(name):
     global target_map
     xy = target_map[name]
+
     if name[-1] == "S":
+        xy[1] -= 0.3
         th = math.pi / 2.0
     elif name[-1] == "N":
+        xy[1] += 0.3
         th = -math.pi / 2.0
     elif name[-1] == "E":
+        xy[0] += 0.3
         th = math.pi
     elif name[-1] == "W":
+        xy[0] -= 0.3
         th = 0.0
     else:
         raise Exception
@@ -126,33 +121,42 @@ def getTargetPose(name):
         col = [2,3]        
     return xy,th, row, col
 
-def getRC(x,y):
-    
-    global target_map    
-    dist = None
-    nearest_target_name = None
+def getPointMap(name):
+    global point_map
+    xy = point_map[name]
+    row = int(name[0])
+    col = int(name[1])
+    return xy, row,col
 
-    for key in target_map:
-        tmp = (target_map[key][0] - x) ** 2 + (target_map[key][1] - y) ** 2
-        if dist is None or tmp < dist:
-            nearest_target_name = key
-            dist = tmp
-    nearest_target_name
-    xy,_,row,col = getTargetPose(nearest_target_name)
+def getRC(x,y):    
+    try:
+        global point_map    
+        dist = None
+        nearest_point = None
 
-    mode = [None,None]
-    mode[0] = x >= xy[0]
-    mode[1] = y >= xy[1]        
-    
-    # mode[0] : 自機より左側 -> 中継点は右側
-    if mode[0]:
-        ref_c = col[1]
-    else:
-        ref_c = col[0]
+        for key in point_map:
+            tmp = (point_map[key][0] - x) ** 2 + (point_map[key][1] - y) ** 2
+            if dist is None or tmp < dist:
+                nearest_point = key
+                dist = tmp
 
-    # mode[1] : 自機より上側 -> 中継点は下側
-    ref_r = row[0]
-    if len(row) > 1 and not mode[1]:            
-        ref_r = row[1]
-    
-    return ref_r,ref_c
+        xy, row,col = getPointMap(nearest_point)
+
+        mode = [None,None]
+        mode[0] = x >= xy[0]
+        mode[1] = y >= xy[1]        
+        
+        # mode[0] : 自機より左側 -> 中継点は右側
+        # if mode[0]:
+        #     ref_c = col[1]
+        # else:
+        #     ref_c = col[0]
+
+        # # mode[1] : 自機より上側 -> 中継点は下側
+        # ref_r = row[0]
+        # if len(row) > 1 and not mode[1]:            
+        #     ref_r = row[1]
+    except:
+        import traceback
+        traceback.print_exc()
+    return row,col

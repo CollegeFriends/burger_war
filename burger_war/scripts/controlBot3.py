@@ -83,7 +83,7 @@ class ControlBot():
 
         # 許容誤差
         self.threshold = 0.075        # 位置の誤差                
-        self.threshold2 = 2.5       # 角度の誤差
+        self.threshold2 = 5.0       # 角度の誤差
         self.flg = 0                # フラグ        
         self.isSucceeded = 1        # 状態                        
 
@@ -233,10 +233,10 @@ class ControlBot():
                     print("HEY")
 
                 # 最も近いターゲットが変わった場合
-                if self.nearest_target_name is None or (self.nearest_target_name != nearest_target_name):
-                    if nearest_target_name is not None:                    
+                if nearest_target_name is not None:                    
+                    if self.nearest_target_name is None or self.nearest_target_name != nearest_target_name:                                        
                         self.nearest_target_name = nearest_target_name
-                        rospy.loginfo("nearest_target : {}".format(self.nearest_target_name))                
+                        rospy.loginfo("nearest_target : {}".format(self.nearest_target_name))                                        
                         self.set_target(self.nearest_target_name)
 
                 # 制御信号の計算 
@@ -339,8 +339,7 @@ class ControlBot():
         self.timeout = timeout
 
     # 目的のターゲットを設定する
-    def set_target(self,target_name,timeout=20.0):
-        # self.stop()
+    def set_target(self,target_name,timeout=20.0):        
         # 目的のターゲットの位置を取得する
         xy,th,row,col = getTargetPose(target_name)
 
@@ -383,13 +382,20 @@ class ControlBot():
             c_step = 1
         else:
             c_step = -1
-        
+
+        # self.stop()
+        point = getPoint(cur_r,cur_c)
+        self.put_goal(point[0],point[1],None)
+
+        for c in range(cur_c,ref_c+c_step,c_step):
+            point = getPoint(cur_r,c)
+            self.put_goal(point[0],point[1],None)   
+
         for r in range(cur_r,ref_r+r_step,r_step):
-            for c in range(cur_c,ref_c+c_step,c_step):
-                point = getPoint(r,c)
-                self.put_goal(point[0],point[1],None)
+            point = getPoint(r,ref_c)
+            self.put_goal(point[0],point[1],None)        
         
-        # 4. 目標値を追加する
+        # 5. 目標値を追加する
         self.put_goal(xy[0],xy[1],th)
 
 
