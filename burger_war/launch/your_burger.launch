@@ -7,8 +7,22 @@
 
     <!-- sample program node -->
 
-    <node pkg="burger_war" type="randomRun.py" name="randomRun" output="screen"/>
+    <!-- <param name="side" value="r"/>           -->
+    
+    <!--- AMCL, MoveBase -->
+    <include file="$(find burger_navigation)/launch/burger_navigation.launch">
+    </include>
 
+    <!-- send target ID to judge server -->
+    <node pkg="burger_war" type="sendIdToJudge.py" name="send_id_to_judge" output="screen">
+      <param name="judge_url" value="http://127.0.0.1:5000" />
+      <param name="side" value="r" />
+    </node>
+
+    <!-- war_state -->
+    <param name="side" value="r"/>          
+    <node pkg="burger_war" type="war_state_publisher.py" name="warState" output="screen"/>
+    <node pkg="burger_war" type="test#5.py" name="controller" output="screen"/>    
     <!-- END sample program node -->
 
 

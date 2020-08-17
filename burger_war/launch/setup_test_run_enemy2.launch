@@ -48,6 +48,9 @@
     <param name="side" value="r" />
   </node>
 
+  <!-- war_state -->
+  <param name="side" value="r"/>          
+  <node pkg="burger_war" type="war_state_publisher.py" name="warState" output="screen"/>
   
 <!-- enemy burger blue side -->
   <group ns="enemy_bot">

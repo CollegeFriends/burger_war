@@ -1,14 +1,20 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from test_util import *
-from controlBot2 import ControlBot
+from controlBot3 import ControlBot
 import numpy as np
 import time
 import math
+from war_state_publisher import WarStateBot
+
+# リセットをかける
+reset_sim(judge=True)
+
 # 周回コースを回る
 # 要した時間を確認
-reset_sim(judge=True)
 a = ControlBot()     
 rospy.init_node('control_node') 
-pattern = "C"
+pattern = "D"
 try:        
     if pattern == "A":
         a.put_goal(-0.75,-0.75,None)
@@ -47,20 +53,22 @@ try:
         a.put_goal(0.75,-0.75,None)            
         a.put_goal(0.53, -0.83,math.pi/2.0)               # 12       
         a.put_goal(0,-1.3,math.pi/2.0)            
-        
+    else:
+        a.put_goal(0,-1.25,math.pi/2.0)                      
     base_time = a.clk
     if pattern == "C":
         tmp = len(a._queue)        
         a.strategy(RETRY = True,END=True)
-        print("失敗による追加 : {}".format(len(a._path) - tmp))
-    else:        
-        a.strategy(END=True)
-        
+        print("失敗による追加 : {}".format(len(a._path) - tmp))    
+    else:
+        a.strategy(END=False)    
 
     t = a.clk
-    print("要した時間 : {}".format(t-base_time))
+    print("要した時間 : {}".format(t-base_time))    
 except: 
     import traceback
-    traceback.print_exc()   
+    traceback.print_exc()       
     pass
+
+input()
     

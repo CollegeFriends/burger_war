@@ -35,6 +35,7 @@ def objective(trial):
         for i in range(8):
             reset_sim()
             a = ControlBot(mode="dir2",type=i)           
+            rospy.init_node('control_node') 
             a.gain_dist = np.array([Kp_dist,Ki_dist,0.0])
             a.gain_dir = np.array([Kp_dir, Ki_dir, 0.0])
             a.gain_dir2 = np.array([Kp_dir2, Ki_dir2, 0.0])

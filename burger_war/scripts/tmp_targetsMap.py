@@ -129,6 +129,8 @@ def getNearestTarget(target_map, x, y, war_state):
     return nearestTarget
 
 
+
+
 def isGetTarget(target_name, war_state):
     war_state_dict = converter(war_state)
     if war_state_dict[target_name]['owner'] != war_state.my_side:
