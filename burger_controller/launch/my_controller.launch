@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="side" default="r"/>
+
+    <include file="$(find burger_controller)/launch/self_location_estimation.launch">    
+        <group if="$(eval side=='r')">
+            <arg name="side" value="$(arg side)" />
+            <arg name="initial_pose_x" value="-1.3"/>
+            <arg name="initial_pose_y" value="0.0"/>
+            <arg name="initial_pose_a" value="0.0"/>
+        </group>
+        <group if="$(eval side=='b')">
+            <arg name="side" value="$(arg side)" />
+            <arg name="initial_pose_x" value="1.3"/>
+            <arg name="initial_pose_y" value="0.0"/>
+            <arg name="initial_pose_a" value="1.57"/>
+        </group>          
+    </include>
+
+    <node pkg="burger_controller" type="war_state_publisher.py" name="warState" output="screen"/>    
+    <node pkg="burger_controller" type="tmp_myState_listener.py" name="myState" output="screen"/>    
+    <node pkg="burger_controller" type="cv_cam2.py" name="cvCam" output="screen"/>        
+</launch>
+
