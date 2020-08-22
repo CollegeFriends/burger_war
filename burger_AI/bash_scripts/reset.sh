@@ -4,9 +4,15 @@
 rosnode kill send_id_to_judge
 rosnode kill /enemy_bot/send_id_to_judge
 rosnode kill /enemy_bot/turtlebot3_teleop_keyboard
+
 # gazeboのリセット
 rosnode cleanup
 rosservice call /gazebo/reset_simulation "{}"
+
+# 実行権限の付与
+roscd burger_AI
+chmod +x scripts/*.py
+
 # 審判サーバのリセット
 roscd burger_war
 cd ../
