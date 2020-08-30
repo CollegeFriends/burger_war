@@ -1,9 +1,14 @@
 #!/home/yodai/anaconda3/envs/CollegeFriends/bin/python
 
+import io
 import math
 
+import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+
+import rospy
+from geometry_msgs.msg import Pose
 from keras.callbacks import CSVLogger, History, ModelCheckpoint
 from keras.layers import (Activation, BatchNormalization, Concatenate, Conv2D,
                           Dense, Dropout, Flatten, Input, Reshape)
@@ -14,10 +19,7 @@ from keras.optimizers import (SGD, Adadelta, Adagrad, Adam, Adamax, Nadam,
                               RMSprop)
 from keras.regularizers import l2
 from keras.utils import np_utils, plot_model
-
-import rospy
 from sensor_msgs.msg import LaserScan
-from geometry_msgs.msg import Pose
 
 
 class Localization():
@@ -81,7 +83,12 @@ class Localization():
             self.np_position_pre[2] *= -1
 
         angle = np.arctan2(self.np_position_pre[0], self.np_position_pre[1])
-        position_tmp = self.model.predict([np.expand_dims(scan_tmp, 0), np.expand_dims(angle, 0)])[0]
+        position_lu = 0
+        if self.np_position_pre[0] >= self.np_position_pre[1]:
+            position_lu = 0
+        else:
+            position_lu = 1
+        position_tmp = self.model.predict([np.expand_dims(scan_tmp, 0), np.expand_dims(position_lu, 0)])[0]
 
         # position_tmp = self.model.predict(np.expand_dims(scan_tmp, 0))[0]
 
