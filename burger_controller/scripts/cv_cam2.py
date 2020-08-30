@@ -44,20 +44,20 @@ class CvCamBot():
     def get_rect(self, image, debug=False):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
-        lower = np.array([175, 10, 0])
-        upper = np.array([179, 255, 255])
+        lower = np.array([170, 100, 70])
+        upper = np.array([180, 255, 255])
         mask_r1 = cv2.inRange(hsv, lower, upper)
-        lower = np.array([0, 10, 0])
-        upper = np.array([5, 255, 255])
+        lower = np.array([0, 100, 70])
+        upper = np.array([10, 255, 255])
         mask_r2 = cv2.inRange(hsv, lower, upper)
         mask_r = mask_r1 + mask_r2
 
-        lower = np.array([55, 10, 0])
-        upper = np.array([65, 255, 255])
+        lower = np.array([40, 100, 70])
+        upper = np.array([60, 255, 255])
         mask_g = cv2.inRange(hsv, lower, upper)
 
-        lower = np.array([115, 10, 0])
-        upper = np.array([125, 255, 255])
+        lower = np.array([100, 100, 70])
+        upper = np.array([120, 255, 255])
         mask_b = cv2.inRange(hsv, lower, upper)
 
         if int(cv2.__version__[0]) > 2:

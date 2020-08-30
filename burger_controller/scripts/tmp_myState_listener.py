@@ -22,6 +22,7 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 # from math import pi
 import time
 
+
 class MyStateBot(object):
 
     def __init__(self, mySide='r'):
@@ -124,7 +125,6 @@ class MyStateBot(object):
                     self.goalPub.publish(last_pos)
                     base_time = time.time()
 
-
                 self.my_state_text.text = self.my_state_text.text + \
                     "\nis Enemy found :" + str(self.isFoundEnemy)
                 self.my_state_text.text = self.my_state_text.text + \
@@ -191,8 +191,8 @@ class MyStateBot(object):
     def laserCallback(self, data):
         tmp_min = 99.9
 
-        for data_i in data.ranges[180-22:180+22]:
-            tmp_min = min(data_i, tmp_min)
+        # for data_i in data.ranges[180-22:180+22]:
+        #     tmp_min = min(data_i, tmp_min)
         self.range_data = tmp_min
 
 
