@@ -5,7 +5,7 @@
 # respect all_sensor_sample.py
 
 import rospy
-from burger_war.msg import war_state
+from burger_controller.msg import war_state
 
 import requests
 from time import sleep
@@ -42,9 +42,9 @@ class WarStateBot(object):
             rospy.logerr("UNEXPECTED SIDE NAME : {}".format(self.side))
 
     def strategy(self):
-        rospy.loginfo("MY SIDE IS {}".format(self.side))
+        # rospy.loginfo("MY SIDE IS {}".format(self.side))
 
-        r = rospy.Rate(10)
+        r = rospy.Rate(1)
         while not rospy.is_shutdown():
             # fetch war_state
             self.fetchWarState()
@@ -53,12 +53,12 @@ class WarStateBot(object):
                 rospy.loginfo(self.state.my_point-self.state.enemy_point)
             # publish war_state topic
             self.war_state_pub.publish(self.state)
-            
+
             r.sleep()
 
 
 if __name__ == '__main__':
-    mySide = rospy.get_param("side", default="r")
+    mySide = rospy.get_param("side", default="b")
     rospy.init_node('war_state')
     bot = WarStateBot(mySide=mySide, displayLog=False)
     bot.strategy()
