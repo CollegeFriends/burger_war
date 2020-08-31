@@ -42,7 +42,7 @@ class WarStateBot(object):
             rospy.logerr("UNEXPECTED SIDE NAME : {}".format(self.side))
 
     def strategy(self):
-        # rospy.loginfo("MY SIDE IS {}".format(self.side))
+        rospy.logwarn("MY SIDE IS {}".format(self.side))
 
         r = rospy.Rate(1)
         while not rospy.is_shutdown():
@@ -58,7 +58,7 @@ class WarStateBot(object):
 
 
 if __name__ == '__main__':
-    mySide = rospy.get_param("side", default="b")
     rospy.init_node('war_state')
+    mySide = rospy.get_param("side", default="b")    
     bot = WarStateBot(mySide=mySide, displayLog=False)
     bot.strategy()

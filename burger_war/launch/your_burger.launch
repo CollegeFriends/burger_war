@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="side" default="r"/> <!-- "b" = blue side, "r" = red side  -->
-  <param name="side" value="$(arg side)"/>          
+  
+  <param name="side" value="$(arg side)"/>  
+
   <include file="$(find burger_controller)/launch/my_controller.launch">
     <arg name="side" value ="$(arg side)"/>
   </include>

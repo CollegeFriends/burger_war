@@ -56,8 +56,8 @@ class WarStateBot(object):
 
             r.sleep()
 
-if __name__ == '__main__':    
-    mySide = rospy.get_param("side", default="b")        
+if __name__ == '__main__':        
     rospy.init_node('war_state')        
+    mySide = rospy.get_param("side", default="b")
     bot = WarStateBot(mySide = mySide, displayLog=False)    
     bot.strategy()

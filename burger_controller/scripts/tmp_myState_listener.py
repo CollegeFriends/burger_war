@@ -92,17 +92,17 @@ class MyStateBot(object):
                 target_pos = PoseStamped()
                 nearestTargetName = tmp_targetsMap.getNearestTarget(
                     dcopy(self.map), dcopy(self.pose_x), dcopy(self.pose_y), self.war_state)
-
+                self.my_state_text.text  = "My side is : " + str(self.mySide) + "\t"
                 if self.isFoundEnemyTarget:
                     nearestTargetName = "ROBOT"
-                    self.my_state_text.text = "Current Target : ROBOT (GREEN)"
+                    self.my_state_text.text += "Current Target : ROBOT (GREEN)"
                 elif self.isFoundEnemy:
                     nearestTargetName = "ROBOT"
-                    self.my_state_text.text = "Current Target : ROBOT (RED)"
+                    self.my_state_text.text += "Current Target : ROBOT (RED)"
                 elif nearestTargetName == "":
-                    self.my_state_text.text = "All Targets are MINE !!!!!"
+                    self.my_state_text.text += "All Targets are MINE !!!!!"
                 else:
-                    self.my_state_text.text = "Current Target : " + nearestTargetName
+                    self.my_state_text.text += "Current Target : " + nearestTargetName
                     nearestTargetPos = dcopy(self.map[nearestTargetName])
                     target_pos = tmp_targetsMap.getGoal(
                         nearestTargetPos, nearestTargetName)
@@ -198,7 +198,9 @@ class MyStateBot(object):
 
 
 if __name__ == '__main__':
-    mySide = rospy.get_param("side", default="b")
     rospy.init_node('my_state')
+    mySide = rospy.get_param("side", default="b")
+    rospy.logerr("MY SIDE IS {}".format(mySide))
+    
     bot = MyStateBot(mySide=mySide)
     bot.strategy()
