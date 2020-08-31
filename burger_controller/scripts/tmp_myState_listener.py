@@ -21,6 +21,7 @@ from actionlib_msgs.msg import *
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 # from math import pi
 import time
+# import statistics
 
 
 class MyStateBot(object):
@@ -190,9 +191,9 @@ class MyStateBot(object):
 
     def laserCallback(self, data):
         tmp_min = 99.9
-
         # for data_i in data.ranges[180-22:180+22]:
         #     tmp_min = min(data_i, tmp_min)
+        # tmp_min = statistics.median(data.ranges[180-10:180+10])
         self.range_data = tmp_min
 
 
