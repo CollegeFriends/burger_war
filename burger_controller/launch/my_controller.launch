@@ -15,7 +15,7 @@
     
 
     <node pkg="burger_controller" type="war_state_publisher.py" name="warState" output="screen"/>    
-    <node pkg="burger_controller" type="tmp_myState_listener.py" name="myState" output="screen"/>    
+    <node pkg="burger_controller" type="tmp_myState_listener.py" name="myState"/>
     <node pkg="burger_controller" type="cv_cam2.py" name="cvCam"/>
      <!-- output="screen"/>         -->
 </launch>
