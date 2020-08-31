@@ -11,8 +11,8 @@ roscd burger_AI
 # 審判サーバの立ち上げ
 gnome-terminal --tab -e "sh -c 'cd ../;python judge/judgeServer.py'" --tab -e "sh -c 'cd ../;python judge/visualizeWindow.py'"
 
-# 対戦環境の立ち上げ
-roslaunch burger_AI setup.launch
+# 対戦環境の立ち上げ gui:=trueでgazeboの表示
+roslaunch burger_AI setup.launch gui:=false
 
 # 対戦相手の設定
-roslaunch burger_AI setup_enemy.launch
+# roslaunch burger_AI setup_enemy.launch
