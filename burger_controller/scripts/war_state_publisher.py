@@ -17,11 +17,10 @@ class WarStateBot(object):
         self.displayLog = displayLog
         self.state = war_state()        
         self.war_state_pub = rospy.Publisher('war_state',war_state,queue_size=1)
-
+        self.url = rospy.get_param("url", default="http://192.168.0.100:5000/warState")
     def fetchWarState(self):        
-        # 修正を反映しました
-        # resp = requests.get("http://localhost:5000/warState")     
-        resp = requests.get("http://192.168.0.100:5000/warState")           
+        # 修正を反映しました        
+        resp = requests.get(self.url)           
 
         resp_json = resp.json()        
         rospy.loginfo("JSON {}".format(resp_json))
@@ -63,6 +62,6 @@ class WarStateBot(object):
 
 if __name__ == '__main__':        
     rospy.init_node('war_state')        
-    mySide = rospy.get_param("side", default="b")
+    mySide = rospy.get_param("side", default="b")    
     bot = WarStateBot(mySide = mySide, displayLog=False)    
     bot.strategy()

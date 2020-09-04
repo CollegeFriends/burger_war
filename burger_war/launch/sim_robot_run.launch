@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="enemy_level" default="1"/>
-  
-  
+  <arg name="enemy_level" default="1"/>  
+  <arg name="side"/>   
+
 <!-- Your robot control node run  red side-->
-  <include file="$(find burger_war)/launch/your_burger.launch">
-    <!-- ここを r / b のいずれかに直接指定すると、きちんと動作することを確認しました -->
-    <arg name="side" value="b" />    
+  <include file="$(find burger_war)/launch/your_burger.launch">    
+    <arg name="side" value="$(arg side)" />    
   </include>
 
 <!-- enemy bot run  blue side-->

@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="side" default="r"/> <!-- "b" = blue side, "r" = red side  -->
+  <arg name="side"/> <!-- "b" = blue side, "r" = red side  -->
   
   <param name="side" value="$(arg side)"/>  
+  <param name="url" value="http://localhost:5000/warState"/>
 
   <include file="$(find burger_controller)/launch/my_controller.launch">
     <arg name="side" value ="$(arg side)"/>

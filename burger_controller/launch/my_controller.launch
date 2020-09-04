@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="side" default="r"/>     
+    <arg name="side"/>     
     <group if="$(eval side == 'b')">
         <include file="$(find burger_controller)/launch/self_location_estimation.launch">           
             <arg name="initial_pose_x" value="1.3"/>
