@@ -19,8 +19,13 @@ class WarStateBot(object):
         self.war_state_pub = rospy.Publisher('war_state',war_state,queue_size=1)
 
     def fetchWarState(self):        
-        resp = requests.get("http://localhost:5000/warState")        
-        resp_json = resp.json()
+        # 修正を反映しました
+        # resp = requests.get("http://localhost:5000/warState")     
+        resp = requests.get("http://192.168.0.100:5000/warState")           
+
+        resp_json = resp.json()        
+        rospy.loginfo("JSON {}".format(resp_json))
+
         self.state.time = resp_json['time']       
         self.state.my_side = self.side         
         self.state.my_point = resp_json['scores'][self.side]        
@@ -56,8 +61,8 @@ class WarStateBot(object):
 
             r.sleep()
 
-if __name__ == '__main__':    
-    mySide = rospy.get_param("side", default="b")        
+if __name__ == '__main__':        
     rospy.init_node('war_state')        
+    mySide = rospy.get_param("side", default="b")
     bot = WarStateBot(mySide = mySide, displayLog=False)    
     bot.strategy()

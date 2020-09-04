@@ -21,6 +21,8 @@ from actionlib_msgs.msg import *
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 # from math import pi
 import time
+# import statistics
+
 
 class MyStateBot(object):
 
@@ -90,17 +92,17 @@ class MyStateBot(object):
                 target_pos = PoseStamped()
                 nearestTargetName = tmp_targetsMap.getNearestTarget(
                     dcopy(self.map), dcopy(self.pose_x), dcopy(self.pose_y), self.war_state)
-
+                self.my_state_text.text  = "My side is : " + str(self.mySide) + "\t"
                 if self.isFoundEnemyTarget:
                     nearestTargetName = "ROBOT"
-                    self.my_state_text.text = "Current Target : ROBOT (GREEN)"
+                    self.my_state_text.text += "Current Target : ROBOT (GREEN)"
                 elif self.isFoundEnemy:
                     nearestTargetName = "ROBOT"
-                    self.my_state_text.text = "Current Target : ROBOT (RED)"
+                    self.my_state_text.text += "Current Target : ROBOT (RED)"
                 elif nearestTargetName == "":
-                    self.my_state_text.text = "All Targets are MINE !!!!!"
+                    self.my_state_text.text += "All Targets are MINE !!!!!"
                 else:
-                    self.my_state_text.text = "Current Target : " + nearestTargetName
+                    self.my_state_text.text += "Current Target : " + nearestTargetName
                     nearestTargetPos = dcopy(self.map[nearestTargetName])
                     target_pos = tmp_targetsMap.getGoal(
                         nearestTargetPos, nearestTargetName)
@@ -123,7 +125,6 @@ class MyStateBot(object):
                 elif time.time() - base_time > 15:
                     self.goalPub.publish(last_pos)
                     base_time = time.time()
-
 
                 self.my_state_text.text = self.my_state_text.text + \
                     "\nis Enemy found :" + str(self.isFoundEnemy)
@@ -190,14 +191,16 @@ class MyStateBot(object):
 
     def laserCallback(self, data):
         tmp_min = 99.9
-
-        for data_i in data.ranges[180-22:180+22]:
-            tmp_min = min(data_i, tmp_min)
+        # for data_i in data.ranges[180-22:180+22]:
+        #     tmp_min = min(data_i, tmp_min)
+        # tmp_min = statistics.median(data.ranges[180-10:180+10])
         self.range_data = tmp_min
 
 
 if __name__ == '__main__':
-    mySide = rospy.get_param("side", default="b")
     rospy.init_node('my_state')
+    mySide = rospy.get_param("side", default="b")
+    rospy.logerr("MY SIDE IS {}".format(mySide))
+    
     bot = MyStateBot(mySide=mySide)
     bot.strategy()
