@@ -6,7 +6,7 @@ import rospy
 import tf
 from nav_msgs.msg import Odometry
 from tf2_msgs.msg import TFMessage
-import targetsMap
+import target_map
 from copy import deepcopy as dcopy
 from geometry_msgs.msg import PoseStamped
 from burger_controller.msg import war_state
@@ -28,7 +28,7 @@ class MyStateBot(object):
 
     def __init__(self, mySide='r'):
         self.mySide = mySide
-        self.map = targetsMap.getTargetsMap()
+        self.map = target_map.getTargetsMap()
         self.goalPub = rospy.Publisher(
             '/move_base_simple/goal', PoseStamped, queue_size=5)
         self.myStatePub = rospy.Publisher(
@@ -90,7 +90,7 @@ class MyStateBot(object):
                 self.pose_y = trans[1]
                 nearestTargetName_pre = nearestTargetName
                 target_pos = PoseStamped()
-                nearestTargetName = targetsMap.getNearestTarget(
+                nearestTargetName = target_map.getNearestTarget(
                     dcopy(self.map), dcopy(self.pose_x), dcopy(self.pose_y), self.war_state)
                 self.my_state_text.text  = "My side is : " + str(self.mySide) + "\t"
                 if self.isFoundEnemyTarget:
@@ -104,7 +104,7 @@ class MyStateBot(object):
                 else:
                     self.my_state_text.text += "Current Target : " + nearestTargetName
                     nearestTargetPos = dcopy(self.map[nearestTargetName])
-                    target_pos = targetsMap.getGoal(
+                    target_pos = target_map.getGoal(
                         nearestTargetPos, nearestTargetName)
                     target_pos.header.stamp = rospy.Time.now()
 
