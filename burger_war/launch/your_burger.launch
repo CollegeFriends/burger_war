@@ -1,10 +1,12 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="side"/> <!-- "b" = blue side, "r" = red side  -->
+
+  <!-- sideを指定して実行してください -->
+  <!-- urlは審判サーバのURLを指定して実行してください -->
+  <arg name="side"/> <!-- "b" = blue side, "r" = red side  -->    
+  <param name="url" value="http://localhost:5000/warState"/>
   
   <param name="side" value="$(arg side)"/>  
-  <param name="url" value="http://localhost:5000/warState"/>
-
   <include file="$(find burger_controller)/launch/my_controller.launch">
     <arg name="side" value ="$(arg side)"/>
   </include>
