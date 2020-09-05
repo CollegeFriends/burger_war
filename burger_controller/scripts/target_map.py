@@ -81,16 +81,17 @@ def getGoal(targetPos, targetName):
 
 
 def getNearestTarget(target_map, x, y, war_state):
-    war_state_dict = converter(war_state)
-
-    dist = 99.0
-    nearestTarget = ""
-    for key in target_map:
-        tmp = (target_map[key][0] - x) ** 2 + (target_map[key][1] - y) ** 2
-        if war_state_dict[key]['owner'] != war_state.my_side and tmp < dist:
-            nearestTarget = key
-            dist = tmp
-
+    try:
+        war_state_dict = converter(war_state)    
+        dist = 99.0
+        nearestTarget = ""
+        for key in target_map:
+            tmp = (target_map[key][0] - x) ** 2 + (target_map[key][1] - y) ** 2
+            if war_state_dict[key]['owner'] != war_state.my_side and tmp < dist:
+                nearestTarget = key
+                dist = tmp
+    except:
+        pass
     return nearestTarget
 
 

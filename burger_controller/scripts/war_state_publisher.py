@@ -17,7 +17,7 @@ class WarStateBot(object):
         self.displayLog = displayLog
         self.state = war_state()        
         self.war_state_pub = rospy.Publisher('war_state',war_state,queue_size=1)
-        self.url = rospy.get_param("url", default="http://192.168.0.100:5000/warState")
+        self.url = rospy.get_param("url")
     def fetchWarState(self):        
         # 修正を反映しました        
         resp = requests.get(self.url)           
@@ -45,9 +45,7 @@ class WarStateBot(object):
             rospy.logerr("UNEXPECTED SIDE NAME : {}".format(self.side))
 
 
-    def strategy(self):        
-        # rospy.loginfo("MY SIDE IS {}".format(self.side))
-
+    def strategy(self):                
         r = rospy.Rate(1)
         while not rospy.is_shutdown():
             # fetch war_state
