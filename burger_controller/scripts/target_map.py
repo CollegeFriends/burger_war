@@ -6,24 +6,6 @@ from burger_controller.msg import war_state
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 
-def getTargetsMapOnGAZEBO():
-    Targets = {
-        "FriedShrimp_N":    [0.0,       +0.35/2.0],
-        "FriedShrimp_S":    [0.0,       -0.35/2.0],
-        "FriedShrimp_E":    [+0.35/2.0, 0.0],
-        "FriedShrimp_W":    [-0.35/2.0, 0.0],
-        "Omelette_N":       [+0.53,     +0.53+0.15/2.0],
-        "Omelette_S":       [+0.53,     +0.53-0.15/2.0],
-        "Tomato_N":         [-0.53,     +0.53+0.15/2.0],
-        "Tomato_S":         [-0.53,     +0.53-0.15/2.0],
-        "OctopusWiener_N":  [+0.53,     -0.53+0.15/2.0],
-        "OctopusWiener_S":  [+0.53,     -0.53-0.15/2.0],
-        "Pudding_N":        [-0.53,     -0.53+0.15/2.0],
-        "Pudding_S":        [-0.53,     -0.53-0.15/2.0],
-    }
-    return Targets
-
-
 def getTargetsMap():
     Targets = {
         "FriedShrimp_N":    [+0.35/2.0,         0.0],

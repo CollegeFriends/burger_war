@@ -70,7 +70,7 @@ class MyStateBot(object):
         
         base_time = time.time()
         last_pos = None
-        # time.sleep(2)
+        
         while not rospy.is_shutdown():
             try:
                 (trans, rot) = tf_listener.lookupTransform('map', 'base_footprint', rospy.Time(0))
@@ -79,9 +79,9 @@ class MyStateBot(object):
                 nearestTargetName_pre = nearestTargetName
                 target_pos = PoseStamped()
                 nearestTargetName = target_map.getNearestTarget(dcopy(self.map), dcopy(self.pose_x), dcopy(self.pose_y), self.war_state)
+                self.pubTwistWithPIDController()
 
-                self.my_state_text.text  = "My side is : " + str(self.mySide) + "\n"
-                
+                self.my_state_text.text  = "My side is : " + str(self.mySide) + "\n"                
                 if self.isFoundEnemyTarget:
                     nearestTargetName = "ROBOT"
                     self.my_state_text.text += "Current Target : ROBOT (GREEN)"
@@ -97,15 +97,20 @@ class MyStateBot(object):
                         nearestTargetPos, nearestTargetName)
                     target_pos.header.stamp = rospy.Time.now()
 
-                self.my_state_text.text += "\n Rect R Area :"  + str(self.rectData.rect_r.area) \
+                self.my_state_text.text += "\nRect R Area :"  + str(self.rectData.rect_r.area) \
                                         + "\t Width :" + str(self.rectData.rect_r.length[0]) \
                                         + "\t Height :" + str(self.rectData.rect_r.length[1])
-                self.my_state_text.text += "\n Rect G Area :" + str(self.rectData.rect_g.area) \
+                self.my_state_text.text += "\nRect G Area :" + str(self.rectData.rect_g.area) \
                                         + "\t Width :" + str(self.rectData.rect_g.length[0]) \
                                         + "\t Height :" + str(self.rectData.rect_g.length[1])
-                self.my_state_text.text += "\n Rect B Area :" + str(self.rectData.rect_b.area) \
+                self.my_state_text.text += "\nRect B Area :" + str(self.rectData.rect_b.area) \
                                         + "\t Width :" + str(self.rectData.rect_b.length[0]) \
                                         + "\t Height :" + str(self.rectData.rect_b.length[1])
+
+                self.my_state_text.text += "\nis Enemy found :" + str(self.isFoundEnemy)
+                self.my_state_text.text +="\nRange Data [180]:" + str(self.range_data)
+                self.my_state_text.text +="\nNav Status:" + self.navStatus                
+                self.myStatePub.publish(self.my_state_text)
 
                 if nearestTargetName != nearestTargetName_pre:
                     self.goalPub.publish(target_pos)
@@ -115,11 +120,6 @@ class MyStateBot(object):
                     self.goalPub.publish(last_pos)
                     base_time = time.time()
 
-                self.my_state_text.text += "\nis Enemy found :" + str(self.isFoundEnemy)
-                self.my_state_text.text +="\nRange Data [180]:" + str(self.range_data)
-                self.my_state_text.text +="\nNav Status:" + self.navStatus
-                
-                self.myStatePub.publish(self.my_state_text)
 
             except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
                 rospy.logerr("Failed to get transform")
@@ -139,13 +139,12 @@ class MyStateBot(object):
             #     # self.isReachedGoalMode = True
 
     def cvRectSubCallback(self, data):
-        self.rectData = data
-        self.pubTwistWithPIDController()
+        self.rectData = data        
 
     def pubTwistWithPIDController(self):
         enemy = self.rectData.rect_r
         enemy_target = self.rectData.rect_g
-
+            
         self.isFoundEnemyTarget = enemy_target.center != (-1.0, -1.0) and enemy_target.length[1] > 100.0
         self.isFoundEnemy = self.isFoundEnemyTarget or (enemy.center != (-1.0, -1.0) and enemy.length[0] > 60.0)
         twist = Twist()
