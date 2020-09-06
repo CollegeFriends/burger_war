@@ -23,6 +23,10 @@ def getTargetsMap():
     }
     return Targets
 
+def getWayPointsMap():
+    WayPoints = []
+
+    return WayPoints
 
 distance = 0.3  # magic parm of distance to the target
 
@@ -84,7 +88,6 @@ def isGetTarget(target_name, war_state):
         return True
     else:
         return False
-
 
 def converter(war_state):
     war_state_dict = {}
