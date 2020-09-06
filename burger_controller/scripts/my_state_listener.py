@@ -157,7 +157,7 @@ class MyStateBot(object):
                     
                     base_time = rospy.Time.now()
 
-                if rospy.Time.now() - base_time > rospy.Duration(10):                    
+                if goal_que != deque([]) and rospy.Time.now() - base_time > rospy.Duration(10):                    
                     # 10秒経過しても到着しなかった時は、前回の目標座標を再送
                     self.escape()
                     self.goal_pub.publish(goal_que.popleft())                    
